@@ -1,10 +1,7 @@
 import * as Expr from "./Expr";
+import { ParserError } from "./Errors";
 import { Result } from "./Result";
 import { Token } from "./Token";
-export declare class ParserError extends Error {
-    token: Token;
-    constructor(token: Token, ...params: any[]);
-}
 export declare class Parser {
     private tokens;
     private current;

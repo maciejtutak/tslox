@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var AstPrinter_1 = require("./AstPrinter");
+var Interpreter_1 = require("./Interpreter");
 var Parser_1 = require("./Parser");
 // import * as fs from 'fs';
 var Scanner_1 = require("./Scanner");
@@ -30,6 +31,9 @@ var Lox = /** @class */ (function () {
             if (Lox.hadError) {
                 process.exit(65);
             }
+            if (Lox.hadRuntimeError) {
+                process.exit(70);
+            }
         };
     }
     Lox.prototype.runPrompt = function () {
@@ -43,15 +47,14 @@ var Lox = /** @class */ (function () {
             _this.run(input);
         });
     };
-    Lox.prototype.throwErrors = function (value) {
-        if (value instanceof Array) {
-            for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
-                var v = value_1[_i];
-                throw v;
-            }
-        }
-        throw new Error();
-    };
+    // private throwErrors<E>(value: E): never {
+    //     if (value instanceof Array) {
+    //         for (let v of value) { 
+    //                 throw v; 
+    //         }
+    //     }
+    //     throw new Error();
+    // }
     Lox.prototype.getValueOrThrow = function (result) {
         if (result.isOk()) {
             return result.value;
@@ -67,11 +70,11 @@ var Lox = /** @class */ (function () {
         throw new Error();
     };
     Lox.prototype.run = function (source) {
-        // const result: Result<Token[], ScannerError[]> = Scanner.scan(source);
         try {
             var tokens = this.getValueOrThrow(Scanner_1.Scanner.scan(source));
             var parse = this.getValueOrThrow(Parser_1.Parser.parse(tokens));
             console.log(AstPrinter_1.AstPrinter.print(parse));
+            Lox.interpreter.interpret(parse);
         }
         catch (e) {
             if (e.name === 'ScannerError') {
@@ -89,6 +92,9 @@ var Lox = /** @class */ (function () {
         //     for (let error of result.value) { Lox.report(error.line, "", error.message) }
         // }
         if (Lox.hadError) {
+            return;
+        }
+        if (Lox.hadRuntimeError) {
             return;
         }
         // if (parse.isOk()) {
@@ -113,8 +119,14 @@ var Lox = /** @class */ (function () {
             Lox.report(token.line, " at '" + token.lexeme + "'", message);
         }
     };
+    Lox.runtimeError = function (error) {
+        console.error("[line: " + error.operand.line + "] " + error.message);
+        Lox.hadRuntimeError = true;
+    };
     // hadError: boolean = false
     Lox.hadError = false;
+    Lox.hadRuntimeError = false;
+    Lox.interpreter = new Interpreter_1.Interpreter();
     return Lox;
 }());
 exports.default = Lox;

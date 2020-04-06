@@ -11,9 +11,9 @@ export declare class Binary implements Expr {
     accept<R>(visitor: ExprVisitor<R>): R;
 }
 export declare class Unary implements Expr {
-    left: Token;
+    operator: Token;
     right: Expr;
-    constructor(left: Token, right: Expr);
+    constructor(operator: Token, right: Expr);
     accept<R>(visitor: ExprVisitor<R>): R;
 }
 export declare class Grouping implements Expr {

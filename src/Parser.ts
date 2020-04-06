@@ -1,25 +1,9 @@
 import * as Expr from "./Expr";
 
+import { ParserError } from "./Errors";
 import { Result } from "./Result";
 import { Token } from "./Token";
 import TokenType from "./TokenType";
-
-export class ParserError extends Error {
-    token: Token;
-
-    constructor(token: Token, ...params: any[]) {
-        super(...params);
-
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(this, ParserError)
-          }
-
-          this.name = 'ParserError'
-
-          
-        this.token = token;
-    }
-}
 
 export class Parser {
     private tokens: Token[] = []
@@ -121,7 +105,7 @@ export class Parser {
         // console.log('primary')
         if (this.match(TokenType.FALSE)) { return new Expr.Literal(false); }
         if (this.match(TokenType.TRUE)) { return new Expr.Literal(true); }
-        if (this.match(TokenType.NIL)) { return new Expr.Literal(undefined); }
+        if (this.match(TokenType.NIL)) { return new Expr.Literal(null); }
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Expr.Literal(this.previous().literal);

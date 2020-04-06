@@ -15,11 +15,11 @@ var AstPrinter_1 = require("../AstPrinter");
 var Token_1 = require("../Token");
 var TokenType_1 = __importDefault(require("../TokenType"));
 it('check simple multiplication expression', function () {
-    var expression = new Expr.Binary(new Expr.Literal(1), new Token_1.Token(TokenType_1.default.STAR, "*", 1, undefined), new Expr.Literal(2));
+    var expression = new Expr.Binary(new Expr.Literal(1), new Token_1.Token(TokenType_1.default.STAR, "*", 1, null), new Expr.Literal(2));
     expect(AstPrinter_1.AstPrinter.print(expression)).toBe('(* 1 2)');
 });
 it('check binary expression', function () {
-    var expression = new Expr.Binary(new Expr.Unary(new Token_1.Token(TokenType_1.default.MINUS, "-", 1, undefined), new Expr.Literal(123)), new Token_1.Token(TokenType_1.default.STAR, "*", 1, undefined), new Expr.Grouping(new Expr.Literal(45.67)));
+    var expression = new Expr.Binary(new Expr.Unary(new Token_1.Token(TokenType_1.default.MINUS, "-", 1, null), new Expr.Literal(123)), new Token_1.Token(TokenType_1.default.STAR, "*", 1, null), new Expr.Grouping(new Expr.Literal(45.67)));
     expect(AstPrinter_1.AstPrinter.print(expression)).toBe('(* (- 123) (group 45.67))');
 });
 // it('check multi-line comment', () => {

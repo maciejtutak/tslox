@@ -35,7 +35,7 @@ export class AstPrinter implements ExprVisitor<string> {
     }
 
     public visitUnaryExpr(expr: Expr.Unary): string {
-        return this.parenthesize(expr.left.lexeme, expr.right)
+        return this.parenthesize(expr.operator.lexeme, expr.right)
     }
     
     public visitGroupingExpr(expr: Expr.Grouping): string {
@@ -43,7 +43,7 @@ export class AstPrinter implements ExprVisitor<string> {
     }
 
     public visitLiteralExpr(expr: Expr.Literal): string {
-        if (expr.value === undefined) return "nil";
+        if (expr.value === null) return "nil";
         return expr.value.toString();
     }
 }

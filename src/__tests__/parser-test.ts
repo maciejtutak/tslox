@@ -32,7 +32,7 @@ it('check primary expression', () => {
 it('check binary expression', () => {
     const tokens: Token[] = [ 
         new Token(TokenType.NUMBER, "", 1, "24"),
-        new Token(TokenType.PLUS, "+", 1),
+        new Token(TokenType.PLUS, "+", 1, null),
         new Token(TokenType.NUMBER, "", 1, "48")
     ];
 

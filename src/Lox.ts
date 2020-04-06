@@ -1,8 +1,10 @@
 import * as Expr from "./Expr";
 
 import { AstPrinter } from "./AstPrinter";
+import { Interpreter } from "./Interpreter";
 import { Parser } from "./Parser";
 import { Result } from "./Result";
+import { RuntimeError } from "./Errors";
 // import * as fs from 'fs';
 import { Scanner } from "./Scanner";
 import { Token } from "./Token";
@@ -12,7 +14,10 @@ import readline from "readline";
 export default class Lox {
     // hadError: boolean = false
     static hadError: boolean = false;
+    static hadRuntimeError: boolean = false;
         
+    static interpreter = new Interpreter();
+    
     public main = (args: string[]): void => {
         console.log(args);
         if (args.length < 2) {
@@ -28,6 +33,7 @@ export default class Lox {
     private runFile = (fileName: string): void => {
         console.log(fileName)
         if (Lox.hadError) { process.exit(65) }
+        if (Lox.hadRuntimeError) { process.exit(70) }
     }
 
     private runPrompt(): void  {
@@ -43,14 +49,14 @@ export default class Lox {
 
     }
     
-    private throwErrors<E>(value: E): never {
-        if (value instanceof Array) {
-            for (let v of value) { 
-                    throw v; 
-            }
-        }
-        throw new Error();
-    }
+    // private throwErrors<E>(value: E): never {
+    //     if (value instanceof Array) {
+    //         for (let v of value) { 
+    //                 throw v; 
+    //         }
+    //     }
+    //     throw new Error();
+    // }
 
     private getValueOrThrow<T, E>(result: Result<T, E>): T | never {
         if (result.isOk()) {
@@ -66,11 +72,11 @@ export default class Lox {
     }
 
     private run(source: string): void {
-        // const result: Result<Token[], ScannerError[]> = Scanner.scan(source);
         try {
             const tokens: Token[] = this.getValueOrThrow(Scanner.scan(source));
             const parse: Expr.Expr = this.getValueOrThrow(Parser.parse(tokens));
             console.log(AstPrinter.print(parse));
+            Lox.interpreter.interpret(parse);
         } catch (e) {
             if (e.name === 'ScannerError') {
                 console.error('scannerError')
@@ -86,7 +92,8 @@ export default class Lox {
         //     for (let error of result.value) { Lox.report(error.line, "", error.message) }
         // }
 
-            if (Lox.hadError) { return; }
+            if (Lox.hadError) { return }
+            if (Lox.hadRuntimeError) { return }
             // if (parse.isOk()) {
             //     // console.log(parse);
             //     console.log(AstPrinter.print(parse.value));
@@ -111,5 +118,10 @@ export default class Lox {
         } else {
             Lox.report(token.line, " at '" + token.lexeme + "'", message)
         }
+    }
+
+    static runtimeError(error: RuntimeError): void {
+        console.error(`[line: ${error.operand.line}] ${error.message}`);
+        Lox.hadRuntimeError = true;
     }
 }

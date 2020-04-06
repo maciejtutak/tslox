@@ -82,7 +82,7 @@ var Scanner = /** @class */ (function () {
             this.start = this.current;
             this.scanToken();
         }
-        this.tokens.push(new Token_1.Token(TokenType_1.default.EOF, "", this.line));
+        this.tokens.push(new Token_1.Token(TokenType_1.default.EOF, "", this.line, null));
         this.errors.forEach(function (e) { return console.log(e instanceof ScannerError); });
         if (this.errors.length === 0) {
             return Result_1.Result.Ok(this.tokens);
@@ -195,6 +195,7 @@ var Scanner = /** @class */ (function () {
         return this.source.charAt(this.current - 1);
     };
     Scanner.prototype.addToken = function (type, literal) {
+        if (literal === void 0) { literal = null; }
         var text = this.source.substring(this.start, this.current);
         this.tokens.push(new Token_1.Token(type, text, this.line, literal));
     };

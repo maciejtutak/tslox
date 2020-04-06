@@ -29,13 +29,13 @@ var AstPrinter = /** @class */ (function () {
         return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
     };
     AstPrinter.prototype.visitUnaryExpr = function (expr) {
-        return this.parenthesize(expr.left.lexeme, expr.right);
+        return this.parenthesize(expr.operator.lexeme, expr.right);
     };
     AstPrinter.prototype.visitGroupingExpr = function (expr) {
         return this.parenthesize("group", expr.expr);
     };
     AstPrinter.prototype.visitLiteralExpr = function (expr) {
-        if (expr.value === undefined)
+        if (expr.value === null)
             return "nil";
         return expr.value.toString();
     };

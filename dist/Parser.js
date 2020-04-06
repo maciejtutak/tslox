@@ -1,17 +1,4 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -24,26 +11,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Expr = __importStar(require("./Expr"));
+var Errors_1 = require("./Errors");
 var Result_1 = require("./Result");
 var TokenType_1 = __importDefault(require("./TokenType"));
-var ParserError = /** @class */ (function (_super) {
-    __extends(ParserError, _super);
-    function ParserError(token) {
-        var params = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            params[_i - 1] = arguments[_i];
-        }
-        var _this = _super.apply(this, params) || this;
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(_this, ParserError);
-        }
-        _this.name = 'ParserError';
-        _this.token = token;
-        return _this;
-    }
-    return ParserError;
-}(Error));
-exports.ParserError = ParserError;
 var Parser = /** @class */ (function () {
     function Parser(tokens) {
         this.tokens = [];
@@ -130,7 +100,7 @@ var Parser = /** @class */ (function () {
             return new Expr.Literal(true);
         }
         if (this.match(TokenType_1.default.NIL)) {
-            return new Expr.Literal(undefined);
+            return new Expr.Literal(null);
         }
         if (this.match(TokenType_1.default.NUMBER, TokenType_1.default.STRING)) {
             return new Expr.Literal(this.previous().literal);
@@ -141,7 +111,7 @@ var Parser = /** @class */ (function () {
             return new Expr.Grouping(expr);
         }
         //TODO: for now
-        throw new ParserError(this.peek(), "Expect expression.");
+        throw new Errors_1.ParserError(this.peek(), "Expect expression.");
         // throw Error;
     };
     /* utilities functios */
@@ -163,7 +133,7 @@ var Parser = /** @class */ (function () {
         if (this.check(type)) {
             return this.advance();
         }
-        this.errors.push(new ParserError(this.peek(), message));
+        this.errors.push(new Errors_1.ParserError(this.peek(), message));
     };
     Parser.prototype.check = function (type) {
         if (this.isAtEnd()) {

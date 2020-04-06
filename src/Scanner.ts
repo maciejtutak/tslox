@@ -75,7 +75,7 @@ export class Scanner {
             this.scanToken();
         }
 
-        this.tokens.push(new Token(TokenType.EOF, "", this.line))
+        this.tokens.push(new Token(TokenType.EOF, "", this.line, null))
         
         this.errors.forEach(e => console.log(e instanceof ScannerError))
 
@@ -157,7 +157,7 @@ export class Scanner {
         return this.source.charAt(this.current - 1);
     }
 
-    private addToken(type: TokenType, literal?: Literal) {
+    private addToken(type: TokenType, literal: Literal = null) {
         const text: string = this.source.substring(this.start, this.current);
         this.tokens.push(new Token(type, text, this.line, literal));
     }

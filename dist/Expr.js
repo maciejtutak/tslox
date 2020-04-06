@@ -20,8 +20,8 @@ var Binary = /** @class */ (function () {
 }());
 exports.Binary = Binary;
 var Unary = /** @class */ (function () {
-    function Unary(left, right) {
-        this.left = left;
+    function Unary(operator, right) {
+        this.operator = operator;
         this.right = right;
     }
     Unary.prototype.accept = function (visitor) {

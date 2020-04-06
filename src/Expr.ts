@@ -25,11 +25,11 @@ export class Binary implements Expr {
 }
 
 export class Unary implements Expr {
-    left: Token;
+    operator: Token;
     right: Expr;
 
-    constructor(left: Token, right: Expr) {
-        this.left = left;
+    constructor(operator: Token, right: Expr) {
+        this.operator = operator;
         this.right = right;
     }
 

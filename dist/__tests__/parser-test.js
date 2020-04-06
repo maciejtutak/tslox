@@ -30,7 +30,7 @@ it('check primary expression', function () {
 it('check binary expression', function () {
     var tokens = [
         new Token_1.Token(TokenType_1.default.NUMBER, "", 1, "24"),
-        new Token_1.Token(TokenType_1.default.PLUS, "+", 1),
+        new Token_1.Token(TokenType_1.default.PLUS, "+", 1, null),
         new Token_1.Token(TokenType_1.default.NUMBER, "", 1, "48")
     ];
     var parse = getValueOrThrow(Parser_1.Parser.parse(tokens));
