@@ -23,12 +23,12 @@ var Result = /** @class */ (function () {
     Result.Fail = function (value) {
         return new Fail(value);
     };
-    // abstract isFail(): this is Fail<T, E>;
-    // abstract match<U>({ fail }: { fail: (value: E) => U }): U;
-    Result.prototype.onFail = function (_callback) {
-        throw new Error();
+    Result.prototype.isOk = function () {
+        return this !== undefined;
     };
-    ;
+    Result.prototype.isFail = function () {
+        return this !== undefined;
+    };
     return Result;
 }());
 exports.Result = Result;
@@ -40,13 +40,7 @@ var Ok = /** @class */ (function (_super) {
         return _this;
     }
     Ok.prototype.isOk = function () {
-        return true;
-    };
-    // isFail(): this is Fail<T, E> {
-    //     return false;
-    // };
-    Ok.prototype.onFail = function (_callback) {
-        return this.value;
+        return this !== undefined;
     };
     return Ok;
 }(Result));
@@ -57,15 +51,51 @@ var Fail = /** @class */ (function (_super) {
         _this.value = value;
         return _this;
     }
-    Fail.prototype.isOk = function () {
-        return false;
-    };
-    // isFail(): this is Fail<T, E> {
-    //     return true;
-    // };
-    Fail.prototype.onFail = function (callback) {
-        return callback(this.value);
+    Fail.prototype.isFail = function () {
+        return this !== undefined;
     };
     return Fail;
 }(Result));
+// export type Result<T, E> = Ok<T, E> | Err<T, E>
+// export const ok = <T, E>(value: T): Result<T, E> => new Ok(value);
+// export const err = <T, E>(value: E): Result<T, E> => new Err(value);
+// class Ok<T, E> {
+//     constructor(readonly value: T) {}
+//     isOk(): this is Ok<T, E> {
+//         return true;
+//     }
+//     getValue(): T {
+//         return this.value;
+//     }
+// }
+// class Err<T, E> {
+//     constructor(readonly value: E) {}
+//     isOk(): this is Ok<T, E> {
+//         return false;
+//     }
+//     getValue(): E {
+//         return this.value;
+//     }
+// }
+// export type Result<T, E> = Ok<T, E> | Err<T, E>
+// export const ok = <T, E>(value: T): Result<T, E> => new Ok(value);
+// export const err = <T, E>(value: E): Result<T, E> => new Err(value);
+// class Ok<T, E> {
+//     constructor(readonly value: T) {}
+//     isOk(): this is Ok<T, E> {
+//         return (this as Ok<T, E>) !== undefined;
+//     }
+//     getValue(): T {
+//         return this.value;
+//     }
+// }
+// class Err<T, E> {
+//     constructor(readonly value: E) {}
+//     isErr(): this is Err<T, E> {
+//         return (this as Err<T, E>) !== undefined;
+//     }
+//     getValue(): E {
+//         return this.value;
+//     }
+// }
 //# sourceMappingURL=Result.js.map

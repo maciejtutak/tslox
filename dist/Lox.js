@@ -3,13 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var AstPrinter_1 = require("./AstPrinter");
+var Parser_1 = require("./Parser");
 // import * as fs from 'fs';
 var Scanner_1 = require("./Scanner");
+var TokenType_1 = __importDefault(require("./TokenType"));
 var readline_1 = __importDefault(require("readline"));
 var Lox = /** @class */ (function () {
     function Lox() {
         var _this = this;
-        this.hadError = false;
         this.main = function (args) {
             console.log(args);
             if (args.length < 2) {
@@ -25,13 +27,9 @@ var Lox = /** @class */ (function () {
         };
         this.runFile = function (fileName) {
             console.log(fileName);
-            if (_this.hadError) {
+            if (Lox.hadError) {
                 process.exit(65);
             }
-        };
-        this.report = function (line, where, message) {
-            console.error("[line: " + line + "] Error " + where + ": " + message);
-            _this.hadError = true;
         };
     }
     Lox.prototype.runPrompt = function () {
@@ -45,25 +43,79 @@ var Lox = /** @class */ (function () {
             _this.run(input);
         });
     };
-    Lox.prototype.run = function (source) {
-        this.scanner = new Scanner_1.Scanner(source);
-        var result = this.scanner.scanTokens();
+    Lox.prototype.throwErrors = function (value) {
+        if (value instanceof Array) {
+            for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
+                var v = value_1[_i];
+                throw v;
+            }
+        }
+        throw new Error();
+    };
+    Lox.prototype.getValueOrThrow = function (result) {
         if (result.isOk()) {
-            for (var _i = 0, _a = result.value; _i < _a.length; _i++) {
-                var token = _a[_i];
-                console.log(token);
+            return result.value;
+        }
+        else {
+            if (result.value instanceof Array) {
+                for (var _i = 0, _a = result.value; _i < _a.length; _i++) {
+                    var v = _a[_i];
+                    throw v;
+                }
             }
         }
-        else if (result.isFail()) {
-            for (var _b = 0, _c = result.value; _b < _c.length; _b++) {
-                var error = _c[_b];
-                this.error(error.line, error.message);
+        throw new Error();
+    };
+    Lox.prototype.run = function (source) {
+        // const result: Result<Token[], ScannerError[]> = Scanner.scan(source);
+        try {
+            var tokens = this.getValueOrThrow(Scanner_1.Scanner.scan(source));
+            var parse = this.getValueOrThrow(Parser_1.Parser.parse(tokens));
+            console.log(AstPrinter_1.AstPrinter.print(parse));
+        }
+        catch (e) {
+            if (e.name === 'ScannerError') {
+                console.error('scannerError');
+                Lox.report(e.line, "", e.message);
+            }
+            else if (e.name === 'ParserError') {
+                console.error('parserError');
+                Lox.report(e.token.line, e.token.lexeme, e.message);
             }
         }
+        // if (result.isOk()) {
+        //     for (let token of result.value) { console.log(token) }
+        // } else if (result.isFail()) {
+        //     for (let error of result.value) { Lox.report(error.line, "", error.message) }
+        // }
+        if (Lox.hadError) {
+            return;
+        }
+        // if (parse.isOk()) {
+        //     // console.log(parse);
+        //     console.log(AstPrinter.print(parse.value));
+        // } else if (parse.isFail()) {
+        //     for (let error of parse.value) { Lox.report(error.token.line, error.token.lexeme, error.message) }
+        // }
+        // if (result.isOk()) {
+        //     astPrinter.print();
+        // }
     };
-    Lox.prototype.error = function (line, message) {
-        this.report(line, "", message);
+    Lox.report = function (line, where, message) {
+        console.error("[line: " + line + "] Error " + where + ": " + message);
+        Lox.hadError = true;
     };
+    Lox.error = function (token, message) {
+        if (token.type === TokenType_1.default.EOF) {
+            Lox.report(token.line, " at the end", message);
+        }
+        else {
+            Lox.report(token.line, " at '" + token.lexeme + "'", message);
+        }
+    };
+    // hadError: boolean = false
+    Lox.hadError = false;
     return Lox;
 }());
 exports.default = Lox;
+//# sourceMappingURL=Lox.js.map

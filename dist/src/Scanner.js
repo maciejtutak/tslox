@@ -1,17 +1,4 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -19,33 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Token_1 = require("./Token");
 var Result_1 = require("./Result");
 var TokenType_1 = __importDefault(require("./TokenType"));
-// export class ScannerError extends Error {
-//     line: number;
-//     message: string;
-//     constructor(line: number, message: string) {
-//         super('ScannerError');
-//         this.line = line;
-//         this.message = message;
-//     }
-// }
-var ScannerError = /** @class */ (function (_super) {
-    __extends(ScannerError, _super);
-    function ScannerError(line) {
-        var params = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            params[_i - 1] = arguments[_i];
-        }
-        var _this = _super.apply(this, params) || this;
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(_this, ScannerError);
-        }
-        _this.name = 'ScannerError';
-        _this.line = line;
-        return _this;
-    }
-    return ScannerError;
-}(Error));
-exports.ScannerError = ScannerError;
 var Scanner = /** @class */ (function () {
     function Scanner(source) {
         this.tokens = [];
@@ -73,17 +33,12 @@ var Scanner = /** @class */ (function () {
         };
         this.source = source;
     }
-    Scanner.scan = function (source) {
-        var scanner = new Scanner(source);
-        return scanner.scanTokens();
-    };
     Scanner.prototype.scanTokens = function () {
         while (!this.isAtEnd()) {
             this.start = this.current;
             this.scanToken();
         }
         this.tokens.push(new Token_1.Token(TokenType_1.default.EOF, "", this.line));
-        this.errors.forEach(function (e) { return console.log(e instanceof ScannerError); });
         if (this.errors.length === 0) {
             return Result_1.Result.Ok(this.tokens);
         }
@@ -137,6 +92,8 @@ var Scanner = /** @class */ (function () {
             case '>':
                 this.addToken(this.match('=') ? TokenType_1.default.GREATER_EQUAL : TokenType_1.default.GREATER);
                 break;
+            /* /* ksad
+            sadsd */
             case '/':
                 if (this.match('/')) {
                     // A comment that goes until the end of the line
@@ -146,13 +103,7 @@ var Scanner = /** @class */ (function () {
                 }
                 else if (this.match('*')) {
                     // a multi line comment
-                    // console.log('currently watching', this.peek(), this.peekNext());
                     while ((this.peek() != '*' && this.peekNext() != '/') || (this.peek() != '*' && this.peekNext() === '/') || (this.peek() === '*' && this.peekNext() != '/')) {
-                        // console.log('in loop', this.peek(), this.peekNext());
-                        if (this.isAtEnd()) {
-                            this.errors.push(new ScannerError(this.line, 'Multi-line comment termination "*/" expected.'));
-                            break;
-                        }
                         this.advance();
                     }
                     // consume */
@@ -185,7 +136,7 @@ var Scanner = /** @class */ (function () {
                 }
                 // else { this.errors.push(new ScannerError(this.line, 'Unexpected character.')); }
                 else {
-                    this.errors.push(new ScannerError(this.line, 'Unexpected character.'));
+                    this.errors.push({ line: this.line, message: 'Unexpected character.' });
                 }
                 break;
         }
@@ -224,7 +175,7 @@ var Scanner = /** @class */ (function () {
         // Unterminated string
         if (this.isAtEnd()) {
             // this.errors.push(new ScannerError(this.line, 'Unexpected string.'));
-            this.errors.push(new ScannerError(this.line, 'Unexpected string.'));
+            this.errors.push(({ line: this.line, message: 'Unexpected string.' }));
             return;
         }
         // Closing "
